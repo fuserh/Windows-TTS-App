@@ -17,6 +17,7 @@ namespace Windows_TTS_App
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new boottime());
             Application.Run(new Form1());
             //if (Directory.Exists(@"C:\Users\Public\Documents\data"))
             //{

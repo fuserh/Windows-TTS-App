@@ -1,58 +1,71 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+
 using System.Threading.Tasks;
 using System.Speech.Synthesis;
-using System.Speech.AudioFormat;
 using System.IO;
 using System.Diagnostics;
-using System.Resources;
+
 using System.IO.Compression;
-using System.Reflection;
+
+
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Windows_TTS_App.Properties;
-using System.Configuration;
+
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
-using System.Security.AccessControl;
-using System.Runtime.Remoting.Contexts;
+
+
+// 引用FubarDev.FtpServer和FubarDev.FtpServer.FileSystem.DotNet两个NuGet包
+using FubarDev.FtpServer;
+using FubarDev.FtpServer.FileSystem.DotNet;
+
+// 引用Microsoft.Extensions.DependencyInjection和Microsoft.Extensions.Hosting两个包
+using Microsoft.Extensions.DependencyInjection;
+
+
+// 引用System.IO和System.Threading.Tasks两个包
+
+using FubarDev.FtpServer.AccountManagement;
+
+//using Microsoft.AspNet.Identity;
+
+
+// 在Form类的构造函数中，初始化FTP服务端的主机对象
+
+
 
 namespace Windows_TTS_App
 {
     public partial class Form1 : Form
     {
+        //private IHost _ftpHost;
         // HTTP服务
-        private HttpListener listener = new HttpListener();
-        private Thread ThreadListener = null;
+        //private HttpListener listener = new HttpListener();
+        //private Thread ThreadListener = null;
 
         // web根目录
-        private string WebPath = AppDomain.CurrentDomain.BaseDirectory + "web\\";
+        //private string WebPath = AppDomain.CurrentDomain.BaseDirectory + "web\\";
 
         // 自定义POST处理
         public delegate string EventDo(object sender, HttpListenerRequest request);
-        public event EventDo OnEventDo;
+        //public event EventDo OnEventDo;
 
         // 消息事件
-        public delegate void EventInfo(object sender, string info);
-        public event EventInfo OnEventInfo;
+        //public delegate void EventInfo(object sender, string info);
+        //public event EventInfo OnEventInfo;
 
         // 最后错误信息
-        public string LastErrorInfo = "";
+        //public string LastErrorInfo = "";
 
         // 是否调试
         //public bool IsDebug = false;
 
         // 触发消息
-        private void showInfo(string str)
-        {
-            OnEventInfo(this, str);
-        }
+        //private void showInfo(string str)
+        //{
+        //    OnEventInfo(this, str);
+        //}
         //主机地址
         private string hostAddress;
         //起始端口
@@ -66,10 +79,29 @@ namespace Windows_TTS_App
         //定义端口状态数据（开放则为true，否则为false）
         private bool[] done = new bool[65526];
         private bool OK;
+        // 定义一个HttpListener对象
+
+        // 定义一个按钮对象
+        //private Button startButton;
+        //private HttpListener listener;
+        //private string rootDir;
+
+        //private FtpServer _server; // FTP服务器对象
+
+
+        // FTP服务器主机对象
+        //private IFtpServerHost _ftpServerHost;
+
+        // FTP服务器是否启动的标志
+        //private bool _isRunning;
+        private HttpListener listener;
+        private string rootDirectory;
+        private bool isRunning;
+        private FtpServerHost _ftpServerHost;
         public Form1()
         {
-            boottime myabForm = new boottime();
-            myabForm.ShowDialog();
+            //boottime myabForm = new boottime();
+            //myabForm.ShowDialog();
             InitializeComponent();
             if (Directory.Exists(@"C:\Users\Public\Documents\data"))
             {
@@ -90,8 +122,54 @@ namespace Windows_TTS_App
                 this.notifyIcon1.ShowBalloonTip(60, "应用初始化", "你没有加载应用程序包!应用的功能受限!", ToolTipIcon.Error);
             }
 
+            listener = new HttpListener();
+            isRunning = false;
+
+
+            //InitializeFtpServer();
+            // 设置按钮的文本
+            //button34.Text = "启动";
+            // 设置FTP服务器未启动
+            //_isRunning = false;
         }
         SpeechSynthesizer sy = new SpeechSynthesizer();
+        ServiceCollection services = new ServiceCollection();
+        
+
+        //private void InitializeFtpServer()
+        //{
+        //    // 设置依赖注入
+        //    var services = new ServiceCollection();
+        //     // 把指定的目录设为根目录，这里用当前目录作为示例
+        //     services.Configure<DotNetFileSystemOptions>(opt => opt.RootPath = Directory.GetCurrentDirectory());
+        //     // 添加FTP服务器服务
+        //     // DotNetFileSystemProvider = 使用.NET文件系统功能
+        //     // AnonymousMembershipProvider = 只允许匿名登录
+        //     services.AddFtpServer(builder => builder
+        //         .UseDotNetFileSystem() // 使用.NET文件系统功能
+        //         .EnableAnonymousAuthentication()); // 允许匿名登录
+        //
+        //     // 配置FTP服务器选项
+        //     services.Configure<FtpServerOptions>(opt => opt.ServerAddress = "127.0.0.1");
+        //     // 构建服务提供者
+        //    var serviceProvider = services.BuildServiceProvider();
+        //     // 获取FTP服务器主机对象
+        //     _ftpServerHost = serviceProvider.GetRequiredService<IFtpServerHost>();
+        // }
+
+        private void button33_Click(object sender, EventArgs e)
+        {
+
+            this.button33.Text = "arfaf";
+
+        }
+
+
+        
+
+        // 处理按钮点击的方法
+        
+        
         private void button1_Click(object sender, EventArgs e)
         {
             sy.SpeakAsyncCancelAll();
@@ -873,5 +951,386 @@ namespace Windows_TTS_App
             //httpListener.Stop();
             
         }
+        //private CancellationTokenSource cts;
+        private async void button18_Click(object sender, EventArgs e)
+        {
+            //cts = new CancellationTokenSource();
+            //while (!cts.IsCancellationRequested)
+            {
+                //----------------------------------------------
+                //{
+                //    // Do something here
+                //    //
+                //    //1、创建一个用于监听连接的Socket对象
+                //    Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                //    //2、绑定IP地址和端口号
+                //    IPAddress ip = IPAddress.Parse(textBox9.Text);
+                //    string str = textBox10.Text;
+                //    int port = int.Parse(str);
+                //    IPEndPoint ipe = new IPEndPoint(ip, port);
+                //    serverSocket.Bind(ipe);
+                //    //3、设置最大连接数
+                //    serverSocket.Listen(10);
+                //    Console.WriteLine("等待客户端连接...");
+                //    //4、接收客户端连接
+                //    Socket clientSocket = serverSocket.Accept();
+                //    Console.WriteLine("客户端已连接！");
+                //    //5、接收客户端发送的文件
+                //    //设置保存文件的目录
+                //    //string currentDirectory = System.Environment.CurrentDirectory;
+                //    string savePath = System.Environment.CurrentDirectory;
+                //    //获取文件名
+                //    string fileName = Path.GetFileName("tem");
+                //    //合并路径
+                //    string filePath = Path.Combine(savePath, fileName);
+                //    //创建文件流
+                //    FileStream fs = new FileStream(filePath, FileMode.Create);
+                //    //接收数据
+                //    int receivedBytesLen = 0;
+                //    byte[] receivedBytes = new byte[1024];
+                //    while ((receivedBytesLen = clientSocket.Receive(receivedBytes)) > 0)
+                //    {
+                //        fs.Write(receivedBytes, 0, receivedBytesLen);
+                //    }
+                //    fs.Close();
+                //
+                //    //File.Exists(Application.StartupPath + @"\data.ini"
+                //    //byte[] buffer = new byte[1024 * 1024 * 5];
+                //    //int count = clientSocket.Receive(buffer);
+                //    //string fileName = Encoding.UTF8.GetString(buffer, 0, count);
+                //    //Console.WriteLine("接收到的文件名为：" + @fileName);
+                //    //6、保存文件到本地
+                //    //using (FileStream fsWrite = new FileStream(@fileName, FileMode.Create))
+                //    //{
+                //    //fsWrite.Write(buffer, count + 1, buffer.Length - count - 1);
+                //    //Console.WriteLine("文件保存成功！");
+                //    //}
+                //    //7、关闭套接字
+                //    clientSocket.Close();
+                //    serverSocket.Close();
+                //    //await Task.Delay(1000);
+                //}
+                byte[] buffer = new byte[256];
+                IPAddress ip = IPAddress.Any;
+                string str = textBox10.Text;
+                int port = int.Parse(str);
+                IPEndPoint localEndPoint = new IPEndPoint(ip, port);
+                Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                listener.Bind(localEndPoint);
+                listener.Listen(10);
+
+                Console.WriteLine("Waiting for connection...");
+
+                Socket handler = listener.Accept();
+
+                Console.WriteLine($"Connection from {((IPEndPoint)handler.RemoteEndPoint).Address}");
+
+                int nameLength = handler.Receive(buffer);
+                string fileName = Path.GetFileNameWithoutExtension(System.Text.Encoding.UTF8.GetString(buffer, 0, nameLength));
+
+                using (FileStream fStream = File.Create($"D:\\{fileName}.txt"))
+                {
+                    int count;
+                    long totalBytesReceived = 0;
+
+                    while ((count = handler.Receive(buffer)) > 0)
+                    {
+                        fStream.Write(buffer, 0, count);
+                        totalBytesReceived += count;
+                    }
+
+                    Console.WriteLine($"File received, saved as {fStream.Name}, {totalBytesReceived} bytes.");
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
+                }
+
+                listener.Close();
+            }
+            
+        }
+
+        private void button28_Click_1(object sender, EventArgs e)
+        {
+            //string ad2 = textBox8.Text;
+            //if (ad2 == "")
+            //{
+            //    errorProvider1.SetError(textBox8, "路径不能为空!");
+            //    this.notifyIcon1.ShowBalloonTip(20, "Error", "路径不正确!", ToolTipIcon.Error);
+            //}
+            //else
+            //{
+            //    errorProvider1.Clear();
+            //    //sy.SetOutputToWaveFile(@ad);
+            //    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //    //socket.Connect(textBox9.Text, textBox10.Text);
+            //    //string ip = textBox9.Text;
+            //    string str = textBox10.Text;
+            //    int port = int.Parse(str);
+            //    //int port = 1234;
+            //    //{
+            //    //    IPEndPoint ipe = new IPEndPoint(IPAddress.Parse(ip), port);
+            //    //    socket.Connect(ipe);
+            //    //    string filePath = @ad2;
+            //    //    byte[] fileData = File.ReadAllBytes(filePath);
+            //    //    socket.Send(fileData);
+            //    //    socket.Close();
+            //    //}
+            //   
+            //        //sy.Speak(textBox1.Text);
+            //        //sy.SetOutputToDefaultAudioDevice();
+            //        this.notifyIcon1.ShowBalloonTip(20, "应用操作", "成功地保存朗读音频文件", ToolTipIcon.Info);
+            //}
+        }
+
+        private void textBox8_TextChanged(object sender, EventArgs e)
+        {
+            //errorProvider1.Clear();
+            //SaveFileDialog sfd = new SaveFileDialog();
+            //sfd.Filter = "TXT文件(*.txt)|*.txt|所有文件|*.*";//设置文件类型
+            //sfd.FileName = "保存的传输文件 ";//设置默认文件名
+            //sfd.DefaultExt = "txt";//设置默认格式（可以不设）
+            ////sfd.AddExtension = true;//设置自动在文件名中添加扩展名
+            //if (sfd.ShowDialog() == DialogResult.OK)
+            //{
+            //    textBox8.Text = sfd.FileName;
+            //    //+ "\r\n";
+
+            //}
+        }
+
+        private void button32_Click(object sender, EventArgs e)
+        {
+
+            if (!isRunning)
+            {
+                rootDirectory = @textBox14.Text;
+                listener.Prefixes.Add($"http://{textBox15.Text}:{textBox16.Text}/");
+                listener.Start();
+                isRunning = true;
+                button32.Text = "Stop";
+                listener.BeginGetContext(new AsyncCallback(OnRequest), null);
+            }
+            else
+            {
+                listener.Stop();
+                isRunning = false;
+                button32.Text = "Start";
+            }
+            //cts.Cancel();
+        }
+        private void OnRequest(IAsyncResult result)
+        {
+            if (isRunning)
+            {
+                var context = listener.EndGetContext(result);
+                var request = context.Request;
+                var response = context.Response;
+
+                var requestedFile = request.Url.AbsolutePath.Substring(1);
+                var filePath = Path.Combine(rootDirectory, requestedFile);
+
+                if (File.Exists(filePath))
+                {
+                    var fileBytes = File.ReadAllBytes(filePath);
+                    string aaaaa = Path.GetExtension(filePath) + ";";
+                    string searchKeyword = aaaaa; // 您要查找的内容
+                    string result3 = null; // 用于存储结果的变量
+
+                    // 将TextBox中的文本按行分割
+                    string[] lines = textBox1.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+                    // 遍历每一行，查找指定内容
+                    foreach (string line in lines)
+                    {
+                        if (line.Contains(searchKeyword))
+                        {
+                            result3 = line;
+                            
+                            break;
+                        }
+                        else
+                        {
+                            response.ContentType = @"application/octet-stream";
+                            break;
+                        }
+                    }
+
+                    // 检查结果是否为空
+                    if (result3 != null)
+                    {
+                        // 在这里处理结果
+                    }
+                    else
+                    {
+                        // 没有找到指定内容
+                    }
+                    response.ContentType = result3;
+                    //response.ContentType = GetContentType(filePath);
+                    response.ContentLength64 = fileBytes.Length;
+                    response.OutputStream.Write(fileBytes, 0, fileBytes.Length);
+                    response.OutputStream.Close();
+                }
+                else
+                {
+                    response.StatusCode = 404;
+                    response.OutputStream.Close();
+                }
+
+                listener.BeginGetContext(new AsyncCallback(OnRequest), null);
+            }
+        }
+        
+        //private string GetContentType(string filePath)
+        //{
+
+            //return "application/octet-stream";
+            //switch (Path.GetExtension(filePath))
+            //{
+            //
+            //    case ".html":
+            //        return "text/html";
+            //    case ".css":
+            //        return "text/css";
+            //    case ".js":
+            //        return "application/javascript";
+            //    case ".jpg":
+            //        return "image/jpeg";
+            //    case ".png":
+            //        return "image/png";
+            //    default:
+            //        return "application/octet-stream";
+            //}
+        //}
+
+        
+
+        private async void button34_Click(object sender, EventArgs e)
+        {
+            //if (_isRunning)
+            //{
+            // 如果FTP服务器已经启动，就停止它
+            //    await _ftpServerHost.StopAsync();
+            // 设置按钮的文本
+            //    this.button34.Text = "启动";
+            //    // 设置FTP服务器未启动
+            //    _isRunning = false;
+            //}
+            //else
+            //{
+            //   // 如果FTP服务器未启动，就开始它
+            //    await _ftpServerHost.StartAsync();
+            //    // 设置按钮的文本
+            //    this.button34.Text = "停止";
+            //    // 设置FTP服务器已启动
+            //    _isRunning = true;
+            //}
+            // 设置依赖项注入
+            
+
+            // 使用%TEMP%/TestFtpServer作为根文件夹
+            
+            if(button34.Text == "停止") { button34.Text = "启动"; _ftpServerHost.StopAsync(CancellationToken.None).Wait(); } else { await _ftpServerHost.StartAsync(CancellationToken.None); button34.Text = "停止"; }
+                // 启动FTP服务器
+              
+
+                //Console.WriteLine("按ENTER/RETURN键关闭测试应用程序。");
+            
+                //Console.ReadLine();
+
+            // 停止FTP服务器
+            //ftpServerHost.StopAsync(CancellationToken.None).Wait();
+
+        }
+
+        public class TestMembershipProvider : IMembershipProvider
+        {
+            public Task<MemberValidationResult> ValidateUserAsync(string username, string password)
+            {
+                if (username == "admin" && password == "admin")
+                {
+                    // 创建一个 TestUser 对象
+                    var user = new TestUser(username, password);
+                    // 返回验证结果和用户对象
+                    return Task.FromResult(new MemberValidationResult(MemberValidationStatus.AuthenticatedUser, user));
+                }
+                return Task.FromResult(new MemberValidationResult(MemberValidationStatus.InvalidLogin));
+            }
+        }
+
+        public class TestUser :  IFtpUser
+        {
+            // 用户名
+            public string Name { get; }
+
+            // 密码
+            public string Password { get; }
+
+            // 构造函数
+            public TestUser(string name, string password)
+            {
+                Name = name;
+                Password = password;
+            }
+
+            // 实现 IFtpUser 接口的属性和方法
+            public string HomeDirectory => "/";
+
+            public bool IsInGroup(string groupName) => false;
+
+            // 判断用户是否属于某个角色
+            public bool IsInRole(string roleName) => roleName == "Administrators";
+        }
+
+        private void button35_Click(object sender, EventArgs e)
+        {
+            services.Configure<DotNetFileSystemOptions>(opt => opt.RootPath = Directory.GetCurrentDirectory());
+
+            // 添加FTP服务器服务
+            // DotNetFileSystemProvider = 使用.NET文件系统功能
+            // AnonymousMembershipProvider = 仅允许匿名登录
+            services.AddFtpServer(builder =>
+            {
+                builder.UseDotNetFileSystem(); // 使用.NET文件系统功能
+                builder.EnableAnonymousAuthentication(); // 允许匿名登录
+                builder.Services.AddSingleton<IMembershipProvider, TestMembershipProvider>(); //用户登录
+            });
+
+            // 配置FTP服务器
+            services.Configure<FtpServerOptions>(opt => opt.ServerAddress = "0.0.0.0");
+
+            // 构建服务提供商
+            var serviceProvider = services.BuildServiceProvider();
+
+            // 初始化FTP服务器
+            var _ftpServerHost = serviceProvider.GetRequiredService<IFtpServerHost>();
+        }
+        //private void Form1_Load(object sender, EventArgs e)
+        //{
+        // 设置依赖注入
+        //var services = new ServiceCollection();
+
+        // 把指定的目录设为根目录，这里用当前程序所在的目录作为示例
+        //services.Configure<DotNetFileSystemOptions>(opt => opt.RootPath = Directory.GetCurrentDirectory());
+
+        // 添加FTP服务器服务
+        // 使用DotNetFileSystemProvider作为文件系统提供器
+        // 使用AnonymousMembershipProvider允许匿名登录
+        //services.AddFtpServer(builder => builder
+        //    .UseDotNetFileSystem()
+        //    .EnableAnonymousAuthentication());
+
+        // 配置FTP服务器选项，这里设置服务器地址为本地回环地址
+        //services.Configure<FtpServerOptions>(opt => opt.ServerAddress = "127.0.0.1");
+
+        // 构建服务提供器
+        //var serviceProvider = services.BuildServiceProvider();
+
+        // 初始化FTP服务器主机对象
+        //_ftpServerHost = serviceProvider.GetRequiredService<IFtpServerHost>();
+
+
+
+        //}
     }
 }
